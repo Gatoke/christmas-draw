@@ -1,0 +1,51 @@
+plugins {
+    id 'org.springframework.boot' version '2.3.5.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+}
+
+group = 'io.github.gatoke'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://oss.jfrog.org/artifactory/oss-snapshot-local/' }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // MONGO
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+    implementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+
+    // UTILS
+    implementation 'org.apache.commons:commons-lang3:3.11'
+
+    // SWAGGER
+    implementation("io.springfox:springfox-boot-starter:3.0.0")
+//    implementation("io.springfox:springfox-swagger2:3.0.0")
+//    implementation("io.springfox:springfox-spring-webflux:3.0.0")
+//    implementation("io.springfox:springfox-swagger-ui:3.0.0")
+//    implementation("org.webjars:webjars-locator:0.32")
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'io.projectreactor:reactor-test'
+}
+
+test {
+    useJUnitPlatform()
+}
