@@ -1,17 +1,19 @@
 package io.github.gatoke.christmasdraw.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.OffsetDateTime;
+import java.time.Clock;
+import java.time.LocalDateTime;
 
-import static java.time.Clock.systemUTC;
-import static java.time.OffsetDateTime.now;
 import static java.util.UUID.randomUUID;
 
 @Getter
 @Document
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class Session {
 
     @Id
@@ -19,11 +21,12 @@ public class Session {
 
     private String name;
 
-    private OffsetDateTime createdAt;
+    //    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime createdAt;
 
     public Session(final String sessionName) {
         this.id = randomUUID().toString();
         this.name = sessionName;
-        this.createdAt = now(systemUTC());
+        this.createdAt = LocalDateTime.now(Clock.systemUTC());
     }
 }
