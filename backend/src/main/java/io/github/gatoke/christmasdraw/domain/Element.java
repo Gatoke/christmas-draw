@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import static java.util.UUID.randomUUID;
 
 @Getter
-@Document
+@Document(collection = "element")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class Element {
 

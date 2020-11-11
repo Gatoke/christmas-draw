@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import static java.util.UUID.randomUUID;
 
 @Getter
-@Document
+@Document(collection = "session")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class Session {
 
@@ -21,12 +21,14 @@ public class Session {
 
     private String name;
 
-    //    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private boolean closed;
+
     private LocalDateTime createdAt;
 
     public Session(final String sessionName) {
         this.id = randomUUID().toString();
         this.name = sessionName;
+        this.closed = false;
         this.createdAt = LocalDateTime.now(Clock.systemUTC());
     }
 }

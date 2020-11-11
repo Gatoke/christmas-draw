@@ -24,8 +24,8 @@ class SessionEndpoint {
         return sessionApplicationService.createSession(request.getSessionName());
     }
 
-    @GetMapping
-    public Mono<Session> getSession(@RequestParam final String sessionId) {
+    @GetMapping(value = "/{sessionId}")
+    Mono<Session> getSession(@PathVariable final String sessionId) {
         return sessionRepository.findOrThrow(sessionId);
     }
 

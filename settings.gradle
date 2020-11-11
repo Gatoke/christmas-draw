@@ -1,1 +1,3 @@
 rootProject.name = 'christmas-draw'
+include 'frontend'
+include 'backend'

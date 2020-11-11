@@ -22,6 +22,7 @@ class ElementsEndpoint {
     private final ElementRepository elementRepository;
     private final SessionRepository sessionRepository;
 
+
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     Mono<Element> addElement(@RequestBody @Valid final AddElementRequest request) {
         return elementApplicationService.addElement(
@@ -34,13 +35,10 @@ class ElementsEndpoint {
         return elementApplicationService.removeElement(elementId);
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     Flux<Element> streamElements(@RequestParam final String sessionId) {
-        return sessionRepository
-                .existsById(sessionId)
-                .flatMapMany(exists -> exists
-                        ? elementRepository.findAllBy(sessionId)
-                        : Flux.error(IllegalAccessError::new));//todo 404
+        return elementRepository.findAllBy(sessionId)
+                .doOnNext(System.out::println);
     }
 
     @Data
