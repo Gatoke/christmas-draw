@@ -26,6 +26,17 @@ class SessionMongoRepository implements SessionRepository {
     }
 
     @Override
+    public Mono<Void> validate(final String sessionId) {
+        return repository.existsById(sessionId)
+                .flatMap(doesExist -> {
+                    if (doesExist) {
+                        return Mono.empty();
+                    }
+                    return Mono.error(new IllegalAccessException());//todo
+                });
+    }
+
+    @Override
     public Mono<Boolean> existsById(final String sessionId) {
         return repository.existsById(sessionId);
     }

@@ -8,5 +8,7 @@ public interface SessionRepository {
 
     Mono<Session> findOrThrow(final String sessionId);
 
+    Mono<Void> validate(final String sessionId);
+
     Mono<Boolean> existsById(final String sessionId);
 }

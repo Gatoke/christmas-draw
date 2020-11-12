@@ -21,5 +21,12 @@ public class MongoConfiguration {
                 .size(4096)
                 .maxDocuments(10000))
                 .subscribe();
+
+        reactiveMongoTemplate.createCollection("session", CollectionOptions
+                .empty()
+                .capped()
+                .size(4096)
+                .maxDocuments(10000))
+                .subscribe();
     }
 }
