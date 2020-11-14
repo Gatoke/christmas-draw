@@ -3,6 +3,7 @@ import SockJS from "sockjs-client";
 import {Stomp} from "@stomp/stompjs";
 
 const username = prompt("what is your username");
+const channelId = "c44feb30-7087-40ef-8215-6dd90684396c";
 
 const socket = new SockJS('http://192.168.0.192:8080/messages');
 const stompClient = Stomp.over(socket);
@@ -12,20 +13,15 @@ class ElementList extends Component<any, any> {
     constructor(props: any) {
         super(props);
         this.state = {
-            messages: [],
-            messageToSend: ''
+            channel: {
+                connectedUsers: []
+            }
         };
     }
 
     componentDidMount() {
         stompClient.connect({}, this.onConnected, this.onError)
     }
-
-    myChangeHandler = (event: any) => {
-        this.setState(() => ({
-            messageToSend: event.target.value
-        }));
-    };
 
     sendForm = (event: any) => {
         if (stompClient) {
@@ -43,53 +39,45 @@ class ElementList extends Component<any, any> {
     };
 
     onConnected = () => {
-        stompClient.subscribe('/topic/public', this.onMessageReceived);
+        stompClient.subscribe('/topic/channel.' + channelId, this.onMessageReceived);
         stompClient.send("/app/chat.newUser", {},
-            JSON.stringify({sender: username, type: 'CONNECT'}));
+            JSON.stringify({username: username, channelId: channelId}));
+        console.log("<< Connected! >>");
     };
 
     onError = () => {
-        this.setState((prevState: any) => ({
-            messages: [...prevState.messages, `<< Error. Something went wrong! >>`]
-        }));
+        console.log("<< Error. Something went wrong! >>");
     };
 
     onMessageReceived = (payload: any) => {
-        const message = JSON.parse(payload.body);
+        const event = JSON.parse(payload.body);
+        console.log(event);
 
-        if (message.type === 'CONNECT') {
-            this.setState((prevState: any) => ({
-                messages: [...prevState.messages, `<< WebSocket Client Connected! Username: ${message.sender} >>`]
+        if (event.eventType === 'USER_CONNECTED') {
+            this.setState(() => ({
+                channel: event.channel
             }));
         }
-
-        if (message.type === 'CHAT') {
-            this.setState((prevState: any) => ({
-                messages: [...prevState.messages, message.content]
+        if (event.eventType === 'USER_DISCONNECTED') {
+            this.setState(() => ({
+                channel: event.channel
             }))
-        }
-
-        if (message.type === 'DISCONNECT') {
-            this.setState((prevState: any) => ({
-                messages: [...prevState.messages, '<< Disconnected ! >>', `User: ${message.sender}`]
-            }));
         }
     };
 
     render() {
+        if (this.state.channel.connectedUsers <= 0) {
+            return <div>No user connected.</div>
+        }
+
         return (
             <div>
-                <h2>Element List</h2>
+                <h2>{this.state.channel.name}</h2>
                 <div>
-                    {this.state.messages.map((msg: string) => <p>{msg}</p>)}
+                    {
+                        this.state.channel.connectedUsers.map((connectedUser: string) => <p>{connectedUser}</p>)
+                    }
                 </div>
-
-                <div>
-                    <input type='text'
-                           value={this.state.messageToSend}
-                           onChange={this.myChangeHandler}/>
-                </div>
-                <button onClick={this.sendForm}>Send message</button>
             </div>
         )
     }

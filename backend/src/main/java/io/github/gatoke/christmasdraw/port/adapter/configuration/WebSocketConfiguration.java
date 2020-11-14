@@ -23,38 +23,3 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
         registry.enableSimpleBroker("/topic");
     }
 }
-
-//
-//
-//    @Override
-//    public void registerWebSocketHandlers(final WebSocketHandlerRegistry registry) {
-//        registry.addHandler(new QuestionHandler(), "/questions")
-//                .addInterceptors(new HttpHandshakeInterceptor())
-//                .setAllowedOrigins("*"); //todo set allowed origins
-//    }
-//
-//static class QuestionHandler extends TextWebSocketHandler {
-//
-//    private List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
-//
-//    @Override
-//    public void afterConnectionEstablished(final WebSocketSession session) throws Exception {
-//        sessions.add(session);
-//    }
-//
-//    @Override
-//    protected void handleTextMessage(final WebSocketSession session, final TextMessage message) throws Exception {
-//        sessions.forEach(webSocketSession -> {
-//            try {
-//                webSocketSession.sendMessage(message);
-//            } catch (final IOException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void afterConnectionClosed(final WebSocketSession session, final CloseStatus status) throws Exception {
-//        sessions.remove(session);
-//    }
-//}
