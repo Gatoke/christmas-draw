@@ -3,6 +3,7 @@ package io.github.gatoke.christmasdraw.port.adapter.rest;
 import io.github.gatoke.christmasdraw.application.ChannelApplicationService;
 import io.github.gatoke.christmasdraw.domain.Channel;
 import io.github.gatoke.christmasdraw.domain.event.UserConnectedEvent;
+import io.github.gatoke.christmasdraw.domain.event.UserReadyStatusChangedEvent;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,15 @@ class WebSocketController {
         );
     }
 
+    @MessageMapping("/chat.switchReadyStatus")
+    void setReadyStatus(@Payload final SwitchReadyStatusRequest request) {
+        final Channel channel = channelService.switchUserReadyStatus(request.getUsername(), request.getChannelId());
+        sendingOperations.convertAndSend(
+                "/topic/channel." + channel.getId(),
+                new UserReadyStatusChangedEvent(channel)
+        );
+    }
+
     @PostMapping("/createChannel")
     ResponseEntity<Channel> createChannel(@RequestBody @Valid final CreateChannelRequest request) {
         final Channel channel = channelService.createChannel(request.getChannelName());
@@ -63,7 +73,20 @@ class WebSocketController {
         @Size(max = 255)
         private String channelId;
 
+        @NotBlank
         @Size(max = 255)
         private String username;
+    }
+
+    @Data
+    private static class SwitchReadyStatusRequest {
+
+        @NotBlank
+        @Size(max = 255)
+        private String username;
+
+        @NotBlank
+        @Size(max = 255)
+        private String channelId;
     }
 }

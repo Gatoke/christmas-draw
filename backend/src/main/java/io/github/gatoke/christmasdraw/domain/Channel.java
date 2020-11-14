@@ -26,7 +26,7 @@ public class Channel {
 
     private boolean isClosed;
 
-    private Set<String> connectedUsers;
+    private Set<User> connectedUsers;
 
     private LocalDateTime createdAt;
 
@@ -42,12 +42,18 @@ public class Channel {
     }
 
     public void addUser(final String username) {
-        this.connectedUsers.add(username);
+        this.connectedUsers.add(new User(username));
         this.lastUpdatedAt = now(systemUTC());
     }
 
     public void removeUser(final String username) {
-        this.connectedUsers.remove(username);
+        this.connectedUsers.removeIf(user -> user.getName().equals(username));
         this.lastUpdatedAt = now(systemUTC());
+    }
+
+    public void switchUserReadyStatus(final String username) {
+        this.connectedUsers.stream()
+                .filter(user -> user.getName().equals(username))
+                .forEach(User::switchReadyStatus);
     }
 }

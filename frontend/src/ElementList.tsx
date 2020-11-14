@@ -3,7 +3,7 @@ import SockJS from "sockjs-client";
 import {Stomp} from "@stomp/stompjs";
 
 const username = prompt("what is your username");
-const channelId = "c44feb30-7087-40ef-8215-6dd90684396c";
+const channelId = "b16b25c7-5731-421c-8e1c-027622ab8598";//todo
 
 const socket = new SockJS('http://192.168.0.192:8080/messages');
 const stompClient = Stomp.over(socket);
@@ -38,6 +38,15 @@ class ElementList extends Component<any, any> {
         event.preventDefault();
     };
 
+    switchReadyStatus = (event: any) => {
+        const request = {
+            username: username,
+            channelId: channelId
+        };
+        stompClient.send("/app/chat.switchReadyStatus", {}, JSON.stringify(request));
+        event.preventDefault();
+    };
+
     onConnected = () => {
         stompClient.subscribe('/topic/channel.' + channelId, this.onMessageReceived);
         stompClient.send("/app/chat.newUser", {},
@@ -52,17 +61,24 @@ class ElementList extends Component<any, any> {
     onMessageReceived = (payload: any) => {
         const event = JSON.parse(payload.body);
         console.log(event);
-
-        if (event.eventType === 'USER_CONNECTED') {
-            this.setState(() => ({
-                channel: event.channel
-            }));
-        }
-        if (event.eventType === 'USER_DISCONNECTED') {
-            this.setState(() => ({
-                channel: event.channel
-            }))
-        }
+        this.setState(() => ({
+            channel: event.channel
+        }));
+        // if (event.eventType === 'USER_CONNECTED') {
+        //     this.setState(() => ({
+        //         channel: event.channel
+        //     }));
+        // }
+        // if (event.eventType === 'USER_DISCONNECTED') {
+        //     this.setState(() => ({
+        //         channel: event.channel
+        //     }))
+        // }
+        // if (event.eventType === 'USER_READY_STATUS_CHANGED') {
+        //     this.setState(() => ({
+        //         channel: event.channel
+        //     }))
+        // }
     };
 
     render() {
@@ -75,9 +91,13 @@ class ElementList extends Component<any, any> {
                 <h2>{this.state.channel.name}</h2>
                 <div>
                     {
-                        this.state.channel.connectedUsers.map((connectedUser: string) => <p>{connectedUser}</p>)
+                        this.state.channel.connectedUsers
+                            .map((connectedUser: any) =>
+                                <p>{connectedUser.name + " - is ready: " + connectedUser.isReady}</p>)
                     }
                 </div>
+
+                <button onClick={this.switchReadyStatus}>Ready?</button>
             </div>
         )
     }

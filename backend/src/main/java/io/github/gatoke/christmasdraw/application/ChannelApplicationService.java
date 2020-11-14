@@ -27,4 +27,10 @@ public class ChannelApplicationService {
         channel.removeUser(username);
         return channelRepository.save(channel);
     }
+
+    public Channel switchUserReadyStatus(final String username, final String channelId) {
+        final Channel channel = channelRepository.findOrThrow(channelId);
+        channel.switchUserReadyStatus(username);
+        return channelRepository.save(channel);
+    }
 }
