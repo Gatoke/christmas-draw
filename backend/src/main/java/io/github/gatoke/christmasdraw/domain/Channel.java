@@ -41,19 +41,23 @@ public class Channel {
         this.lastUpdatedAt = now(systemUTC());
     }
 
-    public void addUser(final String username) {
-        this.connectedUsers.add(new User(username));
+    public void addUser(final String userId, final String username) {
+        this.connectedUsers.add(new User(userId, username));
         this.lastUpdatedAt = now(systemUTC());
     }
 
-    public void removeUser(final String username) {
-        this.connectedUsers.removeIf(user -> user.getName().equals(username));
+    public void removeUser(final String userId) {
+        this.connectedUsers.removeIf(user -> user.getId().equals(userId));
         this.lastUpdatedAt = now(systemUTC());
     }
 
-    public void switchUserReadyStatus(final String username) {
+    public void switchUserReadyStatus(final String userId) {
         this.connectedUsers.stream()
-                .filter(user -> user.getName().equals(username))
+                .filter(user -> user.getId().equals(userId))
                 .forEach(User::switchReadyStatus);
+    }
+
+    public boolean areAllUsersReady() {
+        return this.connectedUsers.stream().allMatch(User::getIsReady);
     }
 }

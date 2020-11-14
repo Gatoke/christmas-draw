@@ -16,21 +16,21 @@ public class ChannelApplicationService {
         return channelRepository.save(channel);
     }
 
-    public Channel addUserToChannel(final String username, final String channelId) {
+    public Channel addUserToChannel(final String userId, final String username, final String channelId) {
         final Channel channel = channelRepository.findOrThrow(channelId);
-        channel.addUser(username);
+        channel.addUser(userId, username);
         return channelRepository.save(channel);
     }
 
-    public Channel removeUserFromChannel(final String username, final String channelId) {
+    public Channel removeUserFromChannel(final String userId, final String channelId) {
         final Channel channel = channelRepository.findOrThrow(channelId);
-        channel.removeUser(username);
+        channel.removeUser(userId);
         return channelRepository.save(channel);
     }
 
-    public Channel switchUserReadyStatus(final String username, final String channelId) {
+    public Channel switchUserReadyStatus(final String userId, final String channelId) {
         final Channel channel = channelRepository.findOrThrow(channelId);
-        channel.switchUserReadyStatus(username);
+        channel.switchUserReadyStatus(userId);
         return channelRepository.save(channel);
     }
 }

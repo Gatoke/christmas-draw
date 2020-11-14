@@ -3,7 +3,7 @@ import SockJS from "sockjs-client";
 import {Stomp} from "@stomp/stompjs";
 
 const username = prompt("what is your username");
-const channelId = "b16b25c7-5731-421c-8e1c-027622ab8598";//todo
+const channelId = "949c6fd1-8417-45ba-b188-66028129d2b5";//todo
 
 const socket = new SockJS('http://192.168.0.192:8080/messages');
 const stompClient = Stomp.over(socket);
@@ -15,28 +15,17 @@ class ElementList extends Component<any, any> {
         this.state = {
             channel: {
                 connectedUsers: []
-            }
+            },
+            allUsersReady: false,
+            sessionId: ''
         };
     }
 
     componentDidMount() {
-        stompClient.connect({}, this.onConnected, this.onError)
+        stompClient.connect({},
+            (conn: any) => this.onConnected(conn),
+            this.onError)
     }
-
-    sendForm = (event: any) => {
-        if (stompClient) {
-            const chatMessage = {
-                sender: username,
-                content: this.state.messageToSend,
-                type: 'CHAT'
-            };
-            stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
-            this.setState(() => ({
-                messageToSend: ''
-            }));
-        }
-        event.preventDefault();
-    };
 
     switchReadyStatus = (event: any) => {
         const request = {
@@ -47,7 +36,11 @@ class ElementList extends Component<any, any> {
         event.preventDefault();
     };
 
-    onConnected = () => {
+    onConnected = (conn: any) => {
+        // @ts-ignore
+        let sessionId = socket._transport.url.match("(?<=messages\\/([0-9]*)\\/)(.*)(?=\\/websocket)")[0];
+
+        stompClient.subscribe('/topic/channel.' + channelId + "-" + sessionId, this.onMessageReceived);
         stompClient.subscribe('/topic/channel.' + channelId, this.onMessageReceived);
         stompClient.send("/app/chat.newUser", {},
             JSON.stringify({username: username, channelId: channelId}));
@@ -64,21 +57,11 @@ class ElementList extends Component<any, any> {
         this.setState(() => ({
             channel: event.channel
         }));
-        // if (event.eventType === 'USER_CONNECTED') {
-        //     this.setState(() => ({
-        //         channel: event.channel
-        //     }));
-        // }
-        // if (event.eventType === 'USER_DISCONNECTED') {
-        //     this.setState(() => ({
-        //         channel: event.channel
-        //     }))
-        // }
-        // if (event.eventType === 'USER_READY_STATUS_CHANGED') {
-        //     this.setState(() => ({
-        //         channel: event.channel
-        //     }))
-        // }
+        if (event.eventType === 'ALL_USERS_READY') {
+            this.setState(() => ({
+                allUsersReady: true
+            }));
+        }
     };
 
     render() {
@@ -98,6 +81,8 @@ class ElementList extends Component<any, any> {
                 </div>
 
                 <button onClick={this.switchReadyStatus}>Ready?</button>
+
+                <div hidden={!this.state.allUsersReady}>ALL USERS ARE READY</div>
             </div>
         )
     }

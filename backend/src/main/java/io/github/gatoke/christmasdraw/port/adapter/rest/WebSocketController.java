@@ -2,10 +2,12 @@ package io.github.gatoke.christmasdraw.port.adapter.rest;
 
 import io.github.gatoke.christmasdraw.application.ChannelApplicationService;
 import io.github.gatoke.christmasdraw.domain.Channel;
+import io.github.gatoke.christmasdraw.domain.event.AllUsersReadyEvent;
 import io.github.gatoke.christmasdraw.domain.event.UserConnectedEvent;
 import io.github.gatoke.christmasdraw.domain.event.UserReadyStatusChangedEvent;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -19,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,15 +28,15 @@ class WebSocketController {
 
     private final SimpMessageSendingOperations sendingOperations;
     private final ChannelApplicationService channelService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @MessageMapping("/chat.newUser")
     void newUser(@Payload @Valid final ConnectUserRequest request,
                  final SimpMessageHeaderAccessor headerAccessor) {
-        final Channel channel = channelService.addUserToChannel(request.getUsername(), request.getChannelId());
+        final String userId = headerAccessor.getUser().getName();
 
-        final Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
-        sessionAttributes.put("username", request.getUsername());
-        sessionAttributes.put("channelId", channel.getId());
+        final Channel channel = channelService.addUserToChannel(userId, request.getUsername(), request.getChannelId());
+        headerAccessor.getSessionAttributes().put("channelId", channel.getId());
 
         sendingOperations.convertAndSend(
                 "/topic/channel." + channel.getId(),
@@ -44,12 +45,18 @@ class WebSocketController {
     }
 
     @MessageMapping("/chat.switchReadyStatus")
-    void setReadyStatus(@Payload final SwitchReadyStatusRequest request) {
-        final Channel channel = channelService.switchUserReadyStatus(request.getUsername(), request.getChannelId());
+    void setReadyStatus(@Payload final SwitchReadyStatusRequest request,
+                        final SimpMessageHeaderAccessor headerAccessor) {
+        final String userId = headerAccessor.getUser().getName();
+        final Channel channel = channelService.switchUserReadyStatus(userId, request.getChannelId());
         sendingOperations.convertAndSend(
                 "/topic/channel." + channel.getId(),
                 new UserReadyStatusChangedEvent(channel)
         );
+
+        if (channel.areAllUsersReady()) {
+            applicationEventPublisher.publishEvent(new AllUsersReadyEvent(channel));
+        }
     }
 
     @PostMapping("/createChannel")
@@ -80,10 +87,6 @@ class WebSocketController {
 
     @Data
     private static class SwitchReadyStatusRequest {
-
-        @NotBlank
-        @Size(max = 255)
-        private String username;
 
         @NotBlank
         @Size(max = 255)
