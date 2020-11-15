@@ -6,15 +6,16 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 import static java.time.Clock.systemUTC;
 import static java.time.LocalDateTime.now;
-import static java.util.UUID.randomUUID;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.RandomStringUtils.random;
 
 @Getter
 @Document(collection = "session")
@@ -35,7 +36,7 @@ public class Channel {
     private LocalDateTime lastUpdatedAt;
 
     public Channel(final String channelName) {
-        this.id = randomUUID().toString();
+        this.id = random(10, 0, 0, true, true, null, new SecureRandom());
         this.name = channelName;
         this.isClosed = false;
         this.connectedUsers = new HashSet<>();
@@ -57,6 +58,7 @@ public class Channel {
         this.connectedUsers.stream()
                 .filter(user -> user.getId().equals(userId))
                 .forEach(User::switchReadyStatus);
+        this.lastUpdatedAt = now(systemUTC());
     }
 
     public boolean areAllUsersReady() {

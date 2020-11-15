@@ -3,7 +3,7 @@ import SockJS from "sockjs-client";
 import {Stomp} from "@stomp/stompjs";
 
 const username = prompt("what is your username");
-const channelId = "58d672ea-0cba-4689-90f7-ea88afbf5f35";//todo
+const channelId = "7p2LkIujvZ";//todo
 
 const socket = new SockJS('http://192.168.0.192:8080/messages');
 const stompClient = Stomp.over(socket);
