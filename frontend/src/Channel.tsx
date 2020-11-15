@@ -2,52 +2,56 @@ import React, {Component} from 'react';
 import SockJS from "sockjs-client";
 import {Stomp} from "@stomp/stompjs";
 
-const username = prompt("what is your username");
-const channelId = "7p2LkIujvZ";//todo
+class Channel extends Component<any, any> {
 
-const socket = new SockJS('http://192.168.0.192:8080/messages');
-const stompClient = Stomp.over(socket);
-
-class ElementList extends Component<any, any> {
+    socket;
+    stompClient;
 
     constructor(props: any) {
         super(props);
+        this.socket = new SockJS('http://192.168.0.192:8080/messages');
+        this.stompClient = Stomp.over(this.socket);
         this.state = {
             channel: {
+                id: this.props.match.params.id,
                 connectedUsers: []
             },
             allUsersReady: false,
-            sessionId: '',
-            pickedResult: ''
+            pickedResult: '',
+            username: ''
         };
     }
 
     componentDidMount() {
-        stompClient.connect({},
+        const username = prompt("what is your username");
+        this.setState(() => ({username: username}));
+
+        this.stompClient.connect({},
             (conn: any) => this.onConnected(conn),
             this.onError)
     }
 
     switchReadyStatus = (event: any) => {
         const request = {
-            username: username,
-            channelId: channelId
+            username: this.state.username,
+            channelId: this.state.channel.id
         };
-        stompClient.send("/app/chat.switchReadyStatus", {}, JSON.stringify(request));
+        this.stompClient.send("/app/chat.switchReadyStatus", {}, JSON.stringify(request));
         event.preventDefault();
     };
 
     onConnected = (conn: any) => {
         // @ts-ignore
-        console.log(socket._transport.url);
+        console.log(this.socket._transport.url);
 
         // @ts-ignore
-        let sessionId = socket._transport.url.match("(?<=messages\\/([0-9]*)\\/)(.*)(?=\\/websocket)")[0];
+        let sessionId = this.socket._transport.url.match("(?<=messages\\/([0-9]*)\\/)(.*)(?=\\/websocket)")[0];
 
-        stompClient.subscribe('/topic/channel.' + channelId + "-" + sessionId, this.onMessageReceived);
-        stompClient.subscribe('/topic/channel.' + channelId, this.onMessageReceived);
-        stompClient.send("/app/chat.newUser", {},
-            JSON.stringify({username: username, channelId: channelId}));
+        this.stompClient.subscribe('/topic/channel.' + this.state.channel.id + "-" + sessionId, this.onMessageReceived);
+        this.stompClient.subscribe('/topic/channel.' + this.state.channel.id, this.onMessageReceived);
+        console.log("Creating user in" + this.state.channel.id);
+        this.stompClient.send("/app/chat.newUser", {},
+            JSON.stringify({username: this.state.username, channelId: this.state.channel.id}));
         console.log("<< Connected! >>");
     };
 
@@ -63,7 +67,6 @@ class ElementList extends Component<any, any> {
             this.setState(() => ({
                 allUsersReady: true
             }));
-            console.log(this.state.channel.connectedUsers)
         }
         if (event.eventType === 'RANDOM_PERSON_PICKED') {
             this.setState(() => ({
@@ -86,9 +89,8 @@ class ElementList extends Component<any, any> {
                 <h2>{this.state.channel.name}</h2>
                 <div>
                     {
-                        this.state.channel.connectedUsers
-                            .map((connectedUser: any) =>
-                                <p>{connectedUser.name + " - is ready: " + connectedUser.isReady}</p>)
+                        this.state.channel.connectedUsers.map((connectedUser: any) =>
+                            <p key={connectedUser.id}>{connectedUser.name + " - is ready: " + connectedUser.isReady}</p>)
                     }
                 </div>
 
@@ -102,4 +104,4 @@ class ElementList extends Component<any, any> {
     }
 }
 
-export default ElementList;
+export default Channel;

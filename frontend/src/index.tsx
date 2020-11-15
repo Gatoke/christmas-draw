@@ -2,13 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import ElementList from "./ElementList";
+import Home from "./Home";
+import {BrowserRouter, Route} from "react-router-dom";
+import Channel from "./Channel";
 
 ReactDOM.render(
-    <React.StrictMode>
-        {/*<App />*/}
-        <ElementList/>
-    </React.StrictMode>,
+    <BrowserRouter>
+        <Route exact path="/" component={Home}/>
+        <Route exact path="/channel/:id" component={Channel}/>
+    </BrowserRouter>,
     document.getElementById('root')
 );
 
