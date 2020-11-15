@@ -13,6 +13,8 @@ import java.util.Set;
 import static java.time.Clock.systemUTC;
 import static java.time.LocalDateTime.now;
 import static java.util.UUID.randomUUID;
+import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toSet;
 
 @Getter
 @Document(collection = "session")
@@ -32,9 +34,9 @@ public class Channel {
 
     private LocalDateTime lastUpdatedAt;
 
-    public Channel(final String sessionName) {
+    public Channel(final String channelName) {
         this.id = randomUUID().toString();
-        this.name = sessionName;
+        this.name = channelName;
         this.isClosed = false;
         this.connectedUsers = new HashSet<>();
         this.createdAt = now(systemUTC());
@@ -42,7 +44,7 @@ public class Channel {
     }
 
     public void addUser(final String userId, final String username) {
-        this.connectedUsers.add(new User(userId, username));
+        this.connectedUsers.add(new User(userId, username, this.id));
         this.lastUpdatedAt = now(systemUTC());
     }
 
@@ -59,5 +61,19 @@ public class Channel {
 
     public boolean areAllUsersReady() {
         return this.connectedUsers.stream().allMatch(User::getIsReady);
+    }
+
+    public Set<User> getNotPickedUsersExcept(final String userId) {
+        return this.connectedUsers.stream()
+                .filter(not(user -> user.getId().equals(userId)))
+                .filter(not(User::getIsChosen))
+                .collect(toSet());
+    }
+
+    public User getUser(final String userId) {
+        return this.connectedUsers.stream()
+                .filter(user -> user.getId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(String.format("No user of id: %s in channel: %s", userId, this.id)));
     }
 }

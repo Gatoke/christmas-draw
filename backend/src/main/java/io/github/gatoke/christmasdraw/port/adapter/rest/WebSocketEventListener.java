@@ -1,8 +1,11 @@
 package io.github.gatoke.christmasdraw.port.adapter.rest;
 
 import io.github.gatoke.christmasdraw.application.ChannelApplicationService;
+import io.github.gatoke.christmasdraw.application.RandomPersonService;
 import io.github.gatoke.christmasdraw.domain.Channel;
+import io.github.gatoke.christmasdraw.domain.User;
 import io.github.gatoke.christmasdraw.domain.event.AllUsersReadyEvent;
+import io.github.gatoke.christmasdraw.domain.event.RandomPersonPickedEvent;
 import io.github.gatoke.christmasdraw.domain.event.UserDisconnectedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.security.Principal;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -23,6 +24,7 @@ public class WebSocketEventListener {
 
     private final SimpMessageSendingOperations sendingOperations;
     private final ChannelApplicationService channelApplicationService;
+    private final RandomPersonService randomPersonService;
 
     @EventListener
     public void handleWebSocketConnectListener(final SessionConnectedEvent event) {
@@ -32,10 +34,15 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebSocketDisconnectListener(final SessionDisconnectEvent event) {
         final StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        final String userId = getUserIdOrNull(headerAccessor.getUser());
+        final String userId = headerAccessor.getSessionId();
         final String channelId = (String) headerAccessor.getSessionAttributes().get("channelId");
 
-        if (userId != null && channelId != null) {
+        if (channelId == null) {
+            log.info("{} disconnected.", userId);
+            return;
+        }
+
+        if (userId != null) {
             final Channel channel = channelApplicationService.removeUserFromChannel(userId, channelId);
             sendingOperations.convertAndSend(
                     "/topic/channel." + channelId,
@@ -48,19 +55,20 @@ public class WebSocketEventListener {
     @Async
     @EventListener
     public void handleAllUsersReadyEvent(final AllUsersReadyEvent event) {
-        sendingOperations.convertAndSend("/topic/channel." + event.getChannel().getId(), event);
+        final Channel channel = event.getChannel();
+        sendingOperations.convertAndSend("/topic/channel." + channel.getId(), event);
 
-        //todo shuffle and draw
-        //        sendingOperations.convertAndSend(
-//                "/topic/channel." + channel.getId() + "-" + headerAccessor.getSessionId(),
-//                new AllUsersReadyEvent(channel)
-//        );
-    }
-
-    private String getUserIdOrNull(final Principal user) {
-        if (user == null) {
-            return null;
-        }
-        return user.getName();
+        channel.getConnectedUsers()
+                .forEach(user -> {
+                    try {
+                        final User randomPerson = randomPersonService.pickRandomPersonForUserInChannel(user.getId(), channel.getId());
+                        sendingOperations.convertAndSend(
+                                "/topic/channel." + channel.getId() + "-" + user.getId(),
+                                new RandomPersonPickedEvent(randomPerson.getId(), randomPerson.getName())
+                        );
+                    } catch (final Exception e) {
+                        log.error("Picking random person from channel failed! Cause: {}", e.getMessage());
+                    }
+                });
     }
 }

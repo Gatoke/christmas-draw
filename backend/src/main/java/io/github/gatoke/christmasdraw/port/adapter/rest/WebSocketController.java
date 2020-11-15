@@ -33,7 +33,8 @@ class WebSocketController {
     @MessageMapping("/chat.newUser")
     void newUser(@Payload @Valid final ConnectUserRequest request,
                  final SimpMessageHeaderAccessor headerAccessor) {
-        final String userId = headerAccessor.getUser().getName();
+
+        final String userId = headerAccessor.getSessionId();
 
         final Channel channel = channelService.addUserToChannel(userId, request.getUsername(), request.getChannelId());
         headerAccessor.getSessionAttributes().put("channelId", channel.getId());
@@ -47,7 +48,7 @@ class WebSocketController {
     @MessageMapping("/chat.switchReadyStatus")
     void setReadyStatus(@Payload final SwitchReadyStatusRequest request,
                         final SimpMessageHeaderAccessor headerAccessor) {
-        final String userId = headerAccessor.getUser().getName();
+        final String userId = headerAccessor.getSessionId();
         final Channel channel = channelService.switchUserReadyStatus(userId, request.getChannelId());
         sendingOperations.convertAndSend(
                 "/topic/channel." + channel.getId(),
@@ -55,7 +56,9 @@ class WebSocketController {
         );
 
         if (channel.areAllUsersReady()) {
-            applicationEventPublisher.publishEvent(new AllUsersReadyEvent(channel));
+            final AllUsersReadyEvent event = new AllUsersReadyEvent(channel, headerAccessor.getSessionId());
+            sendingOperations.convertAndSend("/topic/channel." + channel.getId(), event);
+            applicationEventPublisher.publishEvent(event);
         }
     }
 

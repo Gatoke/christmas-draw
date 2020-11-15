@@ -3,7 +3,7 @@ import SockJS from "sockjs-client";
 import {Stomp} from "@stomp/stompjs";
 
 const username = prompt("what is your username");
-const channelId = "949c6fd1-8417-45ba-b188-66028129d2b5";//todo
+const channelId = "58d672ea-0cba-4689-90f7-ea88afbf5f35";//todo
 
 const socket = new SockJS('http://192.168.0.192:8080/messages');
 const stompClient = Stomp.over(socket);
@@ -17,7 +17,8 @@ class ElementList extends Component<any, any> {
                 connectedUsers: []
             },
             allUsersReady: false,
-            sessionId: ''
+            sessionId: '',
+            pickedResult: ''
         };
     }
 
@@ -38,6 +39,9 @@ class ElementList extends Component<any, any> {
 
     onConnected = (conn: any) => {
         // @ts-ignore
+        console.log(socket._transport.url);
+
+        // @ts-ignore
         let sessionId = socket._transport.url.match("(?<=messages\\/([0-9]*)\\/)(.*)(?=\\/websocket)")[0];
 
         stompClient.subscribe('/topic/channel.' + channelId + "-" + sessionId, this.onMessageReceived);
@@ -54,12 +58,20 @@ class ElementList extends Component<any, any> {
     onMessageReceived = (payload: any) => {
         const event = JSON.parse(payload.body);
         console.log(event);
-        this.setState(() => ({
-            channel: event.channel
-        }));
+
         if (event.eventType === 'ALL_USERS_READY') {
             this.setState(() => ({
                 allUsersReady: true
+            }));
+            console.log(this.state.channel.connectedUsers)
+        }
+        if (event.eventType === 'RANDOM_PERSON_PICKED') {
+            this.setState(() => ({
+                pickedResult: event.username
+            }));
+        } else {
+            this.setState(() => ({
+                channel: event.channel
             }));
         }
     };
@@ -83,6 +95,8 @@ class ElementList extends Component<any, any> {
                 <button onClick={this.switchReadyStatus}>Ready?</button>
 
                 <div hidden={!this.state.allUsersReady}>ALL USERS ARE READY</div>
+
+                <div>You have picked: {this.state.pickedResult}</div>
             </div>
         )
     }
