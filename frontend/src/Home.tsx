@@ -1,9 +1,13 @@
 import React, {Component} from 'react';
 import {Redirect} from 'react-router-dom';
 
-import './App.css';
+import './Home.css';
+import {Button, Grid, Paper, TextField} from "@material-ui/core";
+import {makeStyles} from "@material-ui/core/styles";
 
 class Home extends Component<any, any> {
+
+    classes: any;
 
     constructor(props: any) {
         super(props);
@@ -11,6 +15,16 @@ class Home extends Component<any, any> {
             channelName: '',
             channelId: ''
         };
+
+        this.classes = makeStyles((theme) => ({
+            form: {
+                width: '100%', // Fix IE 11 issue.
+                marginTop: theme.spacing(1)
+            },
+            submit: {
+                margin: theme.spacing(3, 0, 2),
+            },
+        }));
     }
 
     createChannel = () => {
@@ -41,11 +55,26 @@ class Home extends Component<any, any> {
             return <Redirect to={"channel/" + this.state.channelId}/>
         }
         return (
-            <div className="App">
-                <input placeholder="Channel name" type="text" onChange={this.setChannelName}/>
-                <button disabled={this.state.channelName.length <= 0}
-                        onClick={this.createChannel}>Create new channel
-                </button>
+            <div>
+                <Paper className="Home" elevation={3}>
+                    <Grid container direction="column" alignItems="center" justify="center">
+                        <TextField
+                            label="Channel name"
+                            autoFocus
+                            required
+                            onChange={this.setChannelName}
+                            margin="normal"
+                            className="ChannelNameInput"
+                        />
+                        <Button
+                            variant="contained"
+                            onClick={this.createChannel}
+                            disabled={this.state.channelName.length <= 0}
+                        >
+                            Create channel
+                        </Button>
+                    </Grid>
+                </Paper>
             </div>
         );
     }

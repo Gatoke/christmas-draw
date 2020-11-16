@@ -1,0 +1,15 @@
+.Home {
+    display: flex;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 50%;
+    min-height: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.ChannelNameInput {
+    margin-bottom: 30px;
+    /*text-align: center;*/
+}
+

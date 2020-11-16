@@ -65,7 +65,6 @@ class WebSocketController {
     @PostMapping(value = "/createChannel")
     ResponseEntity<Channel> createChannel(@RequestBody @Valid final CreateChannelRequest request) {
         final Channel channel = channelService.createChannel(request.getChannelName());
-        System.out.println(channel.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(channel);
     }
 
