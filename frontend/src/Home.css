@@ -3,13 +3,38 @@
     position: fixed;
     top: 50%;
     left: 50%;
-    min-width: 50%;
-    min-height: 50%;
+    /*min-width: 50%;*/
+    /*min-height: 50%;*/
+    padding: 50px;
     transform: translate(-50%, -50%);
 }
 
 .ChannelNameInput {
-    margin-bottom: 30px;
+    width: 400px;
     /*text-align: center;*/
 }
 
+.CreateChannelButton {
+    background-color: #9f592a !important;
+    color: white !important;
+}
+
+.CreateChannelButton:hover {
+    background-color: #7d4620 !important;
+}
+
+.CreateChannelButton:disabled {
+    background-color: grey !important;
+}
+
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #9f592a !important;
+    color: #9f592a !important;
+}
+
+.MuiFormLabel-root.Mui-focused {
+    color: #9f592a !important;
+}
+
+
+/*Photo by Hert Niks from Pexels*/
