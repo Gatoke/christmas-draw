@@ -7,10 +7,19 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Grid,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Paper,
     TextField
 } from "@material-ui/core"
 import {GlobalStyle} from "./App.styles";
 import {Stomp} from "@stomp/stompjs";
+import PersonSharpIcon from '@material-ui/icons/PersonSharp';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import CancelIcon from '@material-ui/icons/Cancel';
 
 let socket: any = null;
 let stompClient: any = null;
@@ -123,7 +132,7 @@ class Channel extends Component<any, any> {
                                 size="large"
                                 className="CreateChannelButton"
                                 style={{margin: 'auto'}}
-                            >Akceptuj</Button>
+                            >Wejdź do pokoju</Button>
                         </DialogActions>
                     </Dialog>
                 </div>
@@ -136,19 +145,63 @@ class Channel extends Component<any, any> {
 
         return (
             <div>
-                <h2>{this.state.channel.name}</h2>
-                <div>
-                    {
-                        this.state.channel.connectedUsers.map((connectedUser: any) =>
-                            <p key={connectedUser.id}>{connectedUser.name + " - is ready: " + connectedUser.isReady}</p>)
-                    }
-                </div>
+                <GlobalStyle/>
+                <Paper className="Home" elevation={20}>
+                    <Grid container spacing={2}>
 
-                <button onClick={this.switchReadyStatus}>Ready?</button>
+                        <Grid item xs={6}>
+                            <p><b>{this.state.channel.name}</b></p>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <p><small>{this.state.channel.id}</small></p>
+                        </Grid>
 
-                <div hidden={!this.state.allUsersReady}>ALL USERS ARE READY</div>
+                    </Grid>
 
-                <div>You have picked: {this.state.pickedResult}</div>
+                    <List>
+                        {this.state.channel.connectedUsers.map((connectedUser: any) =>
+                            <ListItem button divider key={connectedUser.id}>
+                                <Grid item xs={3}>
+                                    <ListItemIcon>
+                                        <PersonSharpIcon/>
+                                    </ListItemIcon>
+                                </Grid>
+                                <Grid item xs={5}>
+                                    <ListItemText>{connectedUser.name}</ListItemText>
+                                </Grid>
+                                <Grid item xs={3}>
+                                    <ListItemText style={{color: 'green'}}>
+                                        {connectedUser.isReady ? 'Gotowy/a' : ''}
+                                    </ListItemText>
+                                </Grid>
+                                <Grid item xs={1}>
+                                    <ListItemIcon>
+                                        {
+                                            connectedUser.isReady
+                                                ? <CheckCircleIcon style={{color: 'green'}}/>
+                                                : <CancelIcon style={{opacity: '0.2'}}/>
+                                        }
+                                    </ListItemIcon>
+                                </Grid>
+                            </ListItem>
+                        )}
+                    </List>
+
+                    <Button
+                        variant="contained"
+                        onClick={this.switchReadyStatus}
+                        size="large"
+                        className="CreateChannelButton"
+                    >
+                        Gotowy?
+                    </Button>
+
+                    {/*<button onClick={this.switchReadyStatus}>Ready?</button>*/}
+
+                    <div hidden={!this.state.allUsersReady}>ALL USERS ARE READY</div>
+
+                    <div>You have picked: {this.state.pickedResult}</div>
+                </Paper>
             </div>
         )
     }
