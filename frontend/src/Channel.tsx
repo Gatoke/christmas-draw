@@ -1,58 +1,73 @@
 import React, {Component} from 'react';
 import SockJS from "sockjs-client";
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    TextField
+} from "@material-ui/core"
+import {GlobalStyle} from "./App.styles";
 import {Stomp} from "@stomp/stompjs";
+
+let socket: any = null;
+let stompClient: any = null;
 
 class Channel extends Component<any, any> {
 
-    socket;
-    stompClient;
-
     constructor(props: any) {
         super(props);
-        this.socket = new SockJS('http://192.168.0.192:8080/messages');
-        this.stompClient = Stomp.over(this.socket);
         this.state = {
             channel: {
                 id: this.props.match.params.id,
-                connectedUsers: []
+                connectedUsers: [],
+                name: null
             },
             allUsersReady: false,
             pickedResult: '',
-            username: ''
+            username: '',
+            connected: false
         };
     }
 
-    componentDidMount() {
-        const username = prompt("what is your username");
-        this.setState(() => ({username: username}));
+    setUsername = (event: any) => {
+        this.setState(() => ({
+            username: event.target.value
+        }))
+    };
 
-        this.stompClient.connect({},
+    connect = () => {
+        socket = new SockJS('http://192.168.0.192:8080/messages');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({},
             (conn: any) => this.onConnected(conn),
             this.onError)
-    }
+    };
 
     switchReadyStatus = (event: any) => {
         const request = {
             username: this.state.username,
             channelId: this.state.channel.id
         };
-        this.stompClient.send("/app/chat.switchReadyStatus", {}, JSON.stringify(request));
+        stompClient.send("/app/chat.switchReadyStatus", {}, JSON.stringify(request));
         event.preventDefault();
     };
 
     onConnected = (conn: any) => {
         // @ts-ignore
-        console.log(this.socket._transport.url);
+        console.log(socket._transport.url);
 
         // @ts-ignore
-        let sessionId = this.socket._transport.url.match("(?<=messages\\/([0-9]*)\\/)(.*)(?=\\/websocket)")[0];
+        let sessionId = socket._transport.url.match("(?<=messages\\/([0-9]*)\\/)(.*)(?=\\/websocket)")[0];
 
-        this.stompClient.subscribe('/topic/channel.' + this.state.channel.id + "-" + sessionId, this.onMessageReceived);
-        this.stompClient.subscribe('/topic/channel.' + this.state.channel.id, this.onMessageReceived);
+        stompClient.subscribe('/topic/channel.' + this.state.channel.id + "-" + sessionId, this.onMessageReceived);
+        stompClient.subscribe('/topic/channel.' + this.state.channel.id, this.onMessageReceived);
         console.log("Creating user in" + this.state.channel.id);
-        this.stompClient.send("/app/chat.newUser", {},
+        stompClient.send("/app/chat.newUser", {},
             JSON.stringify({username: this.state.username, channelId: this.state.channel.id}));
-        console.log("<< Connected! >>");
     };
 
     onError = () => {
@@ -74,12 +89,47 @@ class Channel extends Component<any, any> {
             }));
         } else {
             this.setState(() => ({
-                channel: event.channel
+                channel: event.channel,
+                connected: true
             }));
         }
     };
 
     render() {
+        if (this.state.connected === false) {
+            return (
+                <div>
+                    <GlobalStyle/>
+                    <Dialog open={this.state.connected === false} aria-labelledby="form-dialog-title">
+                        <DialogTitle>Kim jesteś</DialogTitle>
+                        <DialogContent style={{textAlign: 'center'}}>
+                            <DialogContentText>
+                                Napisz kim jesteś, aby inni użytkownicy Cię rozpoznali.
+                            </DialogContentText>
+                            <TextField
+                                autoFocus
+                                margin="dense"
+                                label="Nazwa"
+                                variant="outlined"
+                                onChange={this.setUsername}
+                                fullWidth
+                            />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button
+                                variant="contained"
+                                onClick={this.connect}
+                                disabled={this.state.username.length <= 2}
+                                size="large"
+                                className="CreateChannelButton"
+                                style={{margin: 'auto'}}
+                            >Akceptuj</Button>
+                        </DialogActions>
+                    </Dialog>
+                </div>
+            )
+        }
+
         if (this.state.channel.connectedUsers <= 0) {
             return <div>No user connected.</div>
         }
