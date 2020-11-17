@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import {Redirect} from 'react-router-dom';
 
 import './Home.css';
-import {Button, Grid, Paper, TextField} from "@material-ui/core";
+import {Button, Paper, TextField} from "@material-ui/core";
+import {GlobalStyle} from "./App.styles";
 
 
 class Home extends Component<any, any> {
@@ -43,13 +44,12 @@ class Home extends Component<any, any> {
             return <Redirect to={"channel/" + this.state.channelId}/>
         }
         return (
-
             <div>
-                <div className="background-image"/>
-                <Paper className="Home" elevation={3}>
-                    <Grid container direction="column" alignItems="center" justify="center">
+                <GlobalStyle/>
+                <Paper className="Home" elevation={20}>
+                    <form onSubmit={this.createChannel}>
                         <TextField
-                            label="Channel name"
+                            label="Nazwa pokoju"
                             autoFocus
                             required
                             onChange={this.setChannelName}
@@ -60,8 +60,8 @@ class Home extends Component<any, any> {
                         <hr style={{
                             opacity: '0',
                             width: '100%',
-                            marginTop: '10%',
-                            marginBottom: '10%'
+                            marginTop: '20px',
+                            marginBottom: '20px'
                         }}/>
                         <Button
                             variant="contained"
@@ -70,9 +70,9 @@ class Home extends Component<any, any> {
                             size="large"
                             className="CreateChannelButton"
                         >
-                            Create channel
+                            Stwórz nowy pokój
                         </Button>
-                    </Grid>
+                    </form>
                 </Paper>
             </div>
         );

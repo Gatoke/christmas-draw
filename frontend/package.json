@@ -21,7 +21,8 @@
     "stomp": "^0.1.1",
     "typescript": "^4.0.5",
     "web-vitals": "^0.2.4",
-    "websocket": "^1.0.32"
+    "websocket": "^1.0.32",
+    "styled-components": "latest"
   },
   "scripts": {
     "start": "react-scripts start -w",
@@ -48,6 +49,7 @@
     ]
   },
   "devDependencies": {
-    "@types/react-router-dom": "^5.1.6"
+    "@types/react-router-dom": "^5.1.6",
+    "@types/styled-components": "^5.1.4"
   }
 }

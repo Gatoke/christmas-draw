@@ -12,18 +12,3 @@ code {
     monospace;
 }
 
-.background-image {
-    background-image: url("assets/christmas_small.jpg");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    /* Add the blur effect */
-    filter: blur(8px);
-    -webkit-filter: blur(8px);
-    -ms-filter: blur(5px);
-    transform: scale(1.1);
-    position: fixed;
-    display: block;
-    width: 100%;
-    height: 100%;
-}

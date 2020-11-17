@@ -1,17 +1,23 @@
 .Home {
-    display: flex;
+    /*display: flex;*/
     position: fixed;
     top: 50%;
     left: 50%;
-    /*min-width: 50%;*/
-    /*min-height: 50%;*/
-    padding: 50px;
+
+    padding: 20px;
     transform: translate(-50%, -50%);
+    text-align: center;
+    width: 30%;
+    /*width: 100%;*/
+    /*max-width: 600px;*/
+
 }
 
 .ChannelNameInput {
-    width: 400px;
-    /*text-align: center;*/
+    width: 100% !important;
+    /*min-width: 300px !important;*/
+    /*max-width: 600px !important;*/
+    text-align: center;
 }
 
 .CreateChannelButton {
@@ -34,6 +40,14 @@
 
 .MuiFormLabel-root.Mui-focused {
     color: #9f592a !important;
+}
+
+
+@media only screen and (max-width: 800px) {
+
+    .Home {
+        width: 80%;
+    }
 }
 
 
