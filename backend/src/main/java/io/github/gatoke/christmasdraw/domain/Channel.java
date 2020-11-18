@@ -27,7 +27,7 @@ public class Channel {
 
     private String name;
 
-    private boolean isClosed;
+    private Boolean isClosed;
 
     private Set<User> connectedUsers;
 
@@ -77,5 +77,13 @@ public class Channel {
                 .filter(user -> user.getId().equals(userId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(String.format("No user of id: %s in channel: %s", userId, this.id)));
+    }
+
+    public boolean hasEveryonePicked() {
+        return this.connectedUsers.stream().allMatch(user -> user.getChosenUserId() != null);
+    }
+
+    public void close() {
+        this.isClosed = true;
     }
 }

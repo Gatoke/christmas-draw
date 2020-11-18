@@ -37,6 +37,11 @@ public class RandomPersonService {
 
         picker.chooseUserWithId(chosenPerson.getId());
         chosenPerson.setIsChosen();
+
+        if (channel.hasEveryonePicked()) {
+            channel.close();
+        }
+
         channelRepository.save(channel);
 
         return chosenPerson;

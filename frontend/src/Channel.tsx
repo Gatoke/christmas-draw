@@ -160,7 +160,8 @@ class Channel extends Component<any, any> {
 
                     <List>
                         {this.state.channel.connectedUsers.map((connectedUser: any) =>
-                            <ListItem button divider key={connectedUser.id}>
+                            <ListItem button divider key={connectedUser.id}
+                                      style={connectedUser.name === this.state.username ? {backgroundColor: 'rgba(252, 186, 3,0.1)'} : {}}>
                                 <Grid item xs={3}>
                                     <ListItemIcon>
                                         <PersonSharpIcon/>
@@ -185,6 +186,16 @@ class Channel extends Component<any, any> {
                                 </Grid>
                             </ListItem>
                         )}
+
+                        {
+                            this.state.channel.connectedUsers.length < 3
+                                ? <ListItem button divider key={'needMinimum3People'}
+                                            style={{display: 'flex', justifyContent: 'center'}}>
+                                    <small>Wymagane są minimum 3 osoby</small>
+                                </ListItem>
+                                : ''
+                        }
+
                     </List>
 
                     <Button
@@ -192,13 +203,24 @@ class Channel extends Component<any, any> {
                         onClick={this.switchReadyStatus}
                         size="large"
                         className="CreateChannelButton"
+                        disabled={this.state.channel.connectedUsers.length < 3 || true === this.state.channel.isClosed}
                     >
                         Gotowy?
                     </Button>
 
-                    {/*<button onClick={this.switchReadyStatus}>Ready?</button>*/}
+                    <Grid container>
 
-                    <div hidden={!this.state.allUsersReady}>ALL USERS ARE READY</div>
+                        <Grid item xs={12}>
+                            <p><b>
+                                {
+                                    this.state.channel.connectedUsers.length < 3 || this.state.channel.isClosed
+                                        ? ''
+                                        : 'Losowanie rozpocznie się kiedy wszyscy będą gotowi'
+                                }
+                            </b></p>
+                        </Grid>
+
+                    </Grid>
 
                     <div>You have picked: {this.state.pickedResult}</div>
                 </Paper>
