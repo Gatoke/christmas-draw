@@ -4,64 +4,55 @@ import io.github.gatoke.christmasdraw.domain.Channel;
 import io.github.gatoke.christmasdraw.domain.ChannelRepository;
 import io.github.gatoke.christmasdraw.domain.User;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 class RandomPersonServiceTest {
-
 
     private static final String CHANNEL_ID = "997";
     private static final String USER_ID = "1234";
 
+    @Autowired
+    private RandomPersonService service;
+
+    @Autowired
+    private ChannelRepository channelRepository;
+
     @Test
-    void shouldDrawRandomPerson() {
+    void shouldDrawAllPeople() throws InterruptedException {
         // given
         final User testedUser = new User(USER_ID, "Syn", CHANNEL_ID);
 
-        final var repository = mock(ChannelRepository.class);
-        when(repository.findOrThrow(any())).thenReturn(createChannelWithInitial(testedUser));
-
-        final var service = new RandomPersonService(repository);
-
-        // when
-        final User user = service.pickRandomPersonForUserInChannel(USER_ID, CHANNEL_ID);
-
-        // then
-        assertThat(testedUser.getChosenUserId()).isNotNull();
-        assertThat(testedUser.getChosenUserId()).isEqualTo(user.getId());
-    }
-
-    @Test
-    void testShouldDrawAllPeople() { // neuralgic functionality - prevent random failing
-        for (int i = 0; i < 50; i++) {
-            shouldDrawAllPeople();
-        }
-    }
-
-    private void shouldDrawAllPeople() {
-        // given
-        final User testedUser = new User(USER_ID, "Syn", CHANNEL_ID);
-
-        final var repository = mock(ChannelRepository.class);
         final var channel = createChannelWithInitial(testedUser);
-        when(repository.findOrThrow(any())).thenReturn(channel);
-
-        final var service = new RandomPersonService(repository);
+        channelRepository.save(channel);
 
         // when
+        final int numberOfThreads = channel.getConnectedUsers().size();
+        final var threadPool = Executors.newFixedThreadPool(numberOfThreads);
+        final var latch = new CountDownLatch(numberOfThreads);
+
         final Set<String> chosenUsers = new HashSet<>();
-        channel.getConnectedUsers().forEach(user -> {
-            final User chosenUser = service.pickRandomPersonForUserInChannel(user.getId(), channel.getId());
-            chosenUsers.add(chosenUser.getId());
-        });
+        for (final User user : channel.getConnectedUsers()) {
+            threadPool.execute(() -> {
+                final User chosenUser = service.pickRandomPersonForUserInChannel(user.getId(), channel.getId());
+                chosenUsers.add(chosenUser.getId());
+                latch.countDown();
+            });
+        }
 
         // then
+        latch.await();
         channel.getConnectedUsers().forEach(user ->
                 assertThat(user.getChosenUserId()).isNotEqualTo(user.getId())
         );
@@ -76,6 +67,11 @@ class RandomPersonServiceTest {
         channel.addUser("42136412", "Tata");
         channel.addUser("ashui421", "Dziadek");
         channel.addUser("997cx9zf", "Babcia");
+        channel.addUser("241243", "Basia");
+        channel.addUser("5553222", "Córka");
+        channel.addUser("xxff3433", "Jerzy");
+        channel.addUser("aaaaaaaa", "Maciek");
+        channel.addUser("67745", "Maria");
         return channel;
     }
 }

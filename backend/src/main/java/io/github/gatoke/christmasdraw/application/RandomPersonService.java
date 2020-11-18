@@ -20,6 +20,7 @@ public class RandomPersonService {
     private final ChannelRepository channelRepository;
     private final Random random = new Random();
 
+    // todo distributed lock
     public synchronized User pickRandomPersonForUserInChannel(final String userId, final String channelId) {
         final Channel channel = channelRepository.findOrThrow(channelId);
         final User picker = channel.getUser(userId);

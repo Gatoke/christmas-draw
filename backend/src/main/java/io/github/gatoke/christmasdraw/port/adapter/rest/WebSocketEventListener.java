@@ -58,6 +58,7 @@ public class WebSocketEventListener {
         final Channel channel = event.getChannel();
         sendingOperations.convertAndSend("/topic/channel." + channel.getId(), event);
 
+
         channel.getConnectedUsers()
                 .forEach(user -> {
                     try {
