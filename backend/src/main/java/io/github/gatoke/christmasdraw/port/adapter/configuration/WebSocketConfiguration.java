@@ -3,7 +3,6 @@ package io.github.gatoke.christmasdraw.port.adapter.configuration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -29,19 +28,17 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void configureMessageBroker(final MessageBrokerRegistry registry) {
-        final long heartbeatServer = 10000; // 10 seconds
-        final long heartbeatClient = 10000; // 10 seconds
-
-        final ThreadPoolTaskScheduler ts = new ThreadPoolTaskScheduler();
-        ts.setPoolSize(2);
-        ts.setThreadNamePrefix("wss-heartbeat-thread-");
-        ts.initialize();
+//        final long heartbeatServer = 10000; // 10 seconds
+//        final long heartbeatClient = 10000; // 10 seconds
+//
+//        final ThreadPoolTaskScheduler ts = new ThreadPoolTaskScheduler();
+//        ts.setPoolSize(2);
+//        ts.setThreadNamePrefix("wss-heartbeat-thread-");
+//        ts.initialize();
 
 
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic", "/queue")
-                .setHeartbeatValue(new long[]{heartbeatServer, heartbeatClient})
-                .setTaskScheduler(ts);
+        registry.enableSimpleBroker("/topic", "/queue");
     }
 
     private static class CustomHandshakeHandler extends DefaultHandshakeHandler {

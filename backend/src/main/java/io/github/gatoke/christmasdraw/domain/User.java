@@ -11,6 +11,7 @@ public class User {
     private Boolean isReady;
     private String chosenUserId;
     private Boolean isChosen;
+    private Boolean hasSentVerifyMessage;
 
     public User(final String id, final String name, final String channelId) {
         this.id = id;
@@ -19,6 +20,7 @@ public class User {
         this.isReady = false;
         this.chosenUserId = null;
         this.isChosen = false;
+        this.hasSentVerifyMessage = false;
     }
 
     public void switchReadyStatus() {
@@ -34,5 +36,13 @@ public class User {
 
     public void setIsChosen() {
         this.isChosen = true;
+    }
+
+    public void setSentVerifyMessage() {
+        this.hasSentVerifyMessage = true;
+    }
+
+    public boolean hasSentVerifyMessage() {
+        return this.hasSentVerifyMessage;
     }
 }

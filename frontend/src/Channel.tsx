@@ -38,9 +38,21 @@ class Channel extends Component<any, any> {
             allUsersReady: false,
             pickedResult: '',
             username: '',
-            connected: false
+            connected: false,
+            verifyWindowOpened: false,
+            verifyMessage: '',
+            verifyMessageSent: false,
+            peopleResults: [],
+            sessionId: ''
         };
     }
+
+    sendVerifyMessage = () => {
+        console.log("preparing to send");
+        console.log(this.state);
+        stompClient.send("/app/chat.verifyMessage", {},
+            JSON.stringify({channelId: this.state.channel.id, message: this.state.verifyMessage}));
+    };
 
     setUsername = (event: any) => {
         this.setState(() => ({
@@ -71,7 +83,10 @@ class Channel extends Component<any, any> {
         console.log(socket._transport.url);
 
         // @ts-ignore
-        let sessionId = socket._transport.url.match("(?<=messages\\/([0-9]*)\\/)(.*)(?=\\/websocket)")[0];
+        const sessionId = socket._transport.url.match("(?<=messages\\/([0-9]*)\\/)(.*)(?=\\/websocket)")[0];
+        this.setState(() => ({
+            sessionId: sessionId
+        }));
 
         stompClient.subscribe('/topic/channel.' + this.state.channel.id + "-" + sessionId, this.onMessageReceived);
         stompClient.subscribe('/topic/channel.' + this.state.channel.id, this.onMessageReceived);
@@ -93,6 +108,19 @@ class Channel extends Component<any, any> {
                 allUsersReady: true
             }));
         }
+        if (event.eventType === 'VERIFICATION_MESSAGE_RECEIVED') {
+            if (event.userId === this.state.sessionId) {
+                this.setState(() => ({
+                    verifyMessageSent: true
+                }));
+            }
+        }
+        if (event.eventType === 'RESULTS_VERIFIED') {
+            this.setState(() => ({
+                peopleResults: event.peopleResults
+            }));
+        }
+
         if (event.eventType === 'RANDOM_PERSON_PICKED') {
             this.setState(() => ({
                 pickedResult: event.username
@@ -109,6 +137,21 @@ class Channel extends Component<any, any> {
         return this.state.pickedResult !== null && this.state.pickedResult !== '';
     }
 
+    openVerifyWindow = () => {
+        this.setState(() => ({
+            verifyWindowOpened: true,
+            verifyMessage: '',
+            verifyMessageSent: false,
+            peopleResults: []
+        }))
+    };
+
+    setVerifyMessage = (event: any) => {
+        this.setState(() => ({
+            verifyMessage: event.target.value
+        }))
+    };
+
     renderer = (seconds: any, completed: any) => {
         if (completed) {
             // Render a complete state
@@ -117,7 +160,7 @@ class Channel extends Component<any, any> {
                 <p><small>Aby się upewnić, że każda osoba dostanie prezent, kliknij przycisk poniżej.</small></p>
                 <Button
                     variant="contained"
-                    onClick={this.connect}
+                    onClick={this.openVerifyWindow}
                     size="large"
                     className="CreateChannelButton"
                     style={{margin: 'auto'}}
@@ -130,6 +173,57 @@ class Channel extends Component<any, any> {
     };
 
     render() {
+        if (this.state.verifyWindowOpened) {
+            console.log("peopleResults");
+            console.log(this.state.peopleResults);
+            return (
+                <div>
+                    <GlobalStyle/>
+                    <Paper className="Home" elevation={20}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <List>
+                                    {
+                                        <p>{JSON.stringify(this.state.peopleResults)}</p>
+                                    }
+                                    {/*{*/}
+                                    {/*    this.state.peopleResults == null || (this.state.peopleResults.length <= this.state.channel.connectedPeople.length)*/}
+                                    {/*        ? <ListItem button divider*/}
+                                    {/*                    style={{display: 'flex', justifyContent: 'center'}}>*/}
+                                    {/*            <p>Wyślij <b>anonimową</b> wiadomość zawierającą imię osoby, którą*/}
+                                    {/*                wylosowałeś. Wynik*/}
+                                    {/*                zostanie wyświelony dopiero wtedy, gdy wszyscy inni zrobią to samo.</p>*/}
+                                    {/*        </ListItem>*/}
+                                    {/*        : ''*/}
+                                    {/*}*/}
+                                </List>
+                            </Grid>
+                            <Grid item xs={8}>
+                                <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    label="Wpisz kogo wybrałeś, np. 'Mama:)'"
+                                    variant="outlined"
+                                    onChange={this.setVerifyMessage}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Button
+                                    variant="contained"
+                                    onClick={this.sendVerifyMessage}
+                                    disabled={this.state.verifyMessage.length < 1 || this.state.verifyMessageSent}
+                                    size="large"
+                                    className="CreateChannelButton"
+                                    style={{margin: 'auto'}}
+                                >{this.state.verifyMessageSent ? 'Wysłano' : 'Wyślij'}</Button>
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </div>
+            )
+        }
+
         if (this.hasResult()) {
             return (
                 <div>

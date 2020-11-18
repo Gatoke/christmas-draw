@@ -1,10 +1,11 @@
 package io.github.gatoke.christmasdraw.port.adapter.rest;
 
 import io.github.gatoke.christmasdraw.application.ChannelApplicationService;
+import io.github.gatoke.christmasdraw.application.VerifyApplicationService;
 import io.github.gatoke.christmasdraw.domain.Channel;
-import io.github.gatoke.christmasdraw.domain.event.AllUsersReadyEvent;
-import io.github.gatoke.christmasdraw.domain.event.UserConnectedEvent;
-import io.github.gatoke.christmasdraw.domain.event.UserReadyStatusChangedEvent;
+import io.github.gatoke.christmasdraw.domain.ChannelRepository;
+import io.github.gatoke.christmasdraw.domain.Verify;
+import io.github.gatoke.christmasdraw.domain.event.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,6 +30,8 @@ class WebSocketController {
     private final SimpMessageSendingOperations sendingOperations;
     private final ChannelApplicationService channelService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final VerifyApplicationService verifyApplicationService;
+    private final ChannelRepository channelRepository;
 
     @MessageMapping("/chat.newUser")
     void newUser(@Payload @Valid final ConnectUserRequest request,
@@ -46,8 +49,7 @@ class WebSocketController {
     }
 
     @MessageMapping("/chat.switchReadyStatus")
-    void setReadyStatus(@Payload final SwitchReadyStatusRequest request,
-                        final SimpMessageHeaderAccessor headerAccessor) {
+    void setReadyStatus(@Payload final SwitchReadyStatusRequest request, final SimpMessageHeaderAccessor headerAccessor) {
         final String userId = headerAccessor.getSessionId();
         final Channel channel = channelService.switchUserReadyStatus(userId, request.getChannelId());
         sendingOperations.convertAndSend(
@@ -59,6 +61,26 @@ class WebSocketController {
             final AllUsersReadyEvent event = new AllUsersReadyEvent(channel, headerAccessor.getSessionId());
             sendingOperations.convertAndSend("/topic/channel." + channel.getId(), event);
             applicationEventPublisher.publishEvent(event);
+        }
+    }
+
+    @MessageMapping(value = "/chat.verifyMessage")
+    void sendVerifyMessage(@Payload final SendVerifyMessageRequest request, final SimpMessageHeaderAccessor headerAccessor) {
+        final Channel channel = channelRepository.findOrThrow(request.getChannelId());
+
+        final String userId = headerAccessor.getSessionId();
+        final Verify verify = verifyApplicationService.sendMessageToVerify(request.getChannelId(), userId, request.getMessage());
+
+        sendingOperations.convertAndSend(
+                "/topic/channel." + request.getChannelId(),
+                new VerificationMessageReceived(channel, userId)
+        );
+
+        if (verify.isVerified()) {
+            sendingOperations.convertAndSend(
+                    "/topic/channel." + channel.getId(),
+                    new ResultsVerifiedEvent(channel, verify.getMessages())
+            );
         }
     }
 
@@ -94,5 +116,17 @@ class WebSocketController {
         @NotBlank
         @Size(max = 255)
         private String channelId;
+    }
+
+    @Data
+    private static class SendVerifyMessageRequest {
+
+        @NotBlank
+        @Size(max = 255)
+        private String channelId;
+
+        @NotBlank
+        @Size(max = 255)
+        private String message;
     }
 }

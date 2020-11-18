@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 
 @Getter
-@Document(collection = "session")
+@Document
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class Channel {
 

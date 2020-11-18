@@ -2,6 +2,7 @@ package io.github.gatoke.christmasdraw.port.adapter.rest;
 
 import io.github.gatoke.christmasdraw.application.ChannelApplicationService;
 import io.github.gatoke.christmasdraw.application.RandomPersonService;
+import io.github.gatoke.christmasdraw.application.VerifyApplicationService;
 import io.github.gatoke.christmasdraw.domain.Channel;
 import io.github.gatoke.christmasdraw.domain.User;
 import io.github.gatoke.christmasdraw.domain.event.AllUsersReadyEvent;
@@ -24,6 +25,7 @@ public class WebSocketEventListener {
 
     private final SimpMessageSendingOperations sendingOperations;
     private final ChannelApplicationService channelApplicationService;
+    private final VerifyApplicationService verifyApplicationService;
     private final RandomPersonService randomPersonService;
 
     @EventListener
@@ -57,8 +59,6 @@ public class WebSocketEventListener {
     public void handleAllUsersReadyEvent(final AllUsersReadyEvent event) {
         final Channel channel = event.getChannel();
         sendingOperations.convertAndSend("/topic/channel." + channel.getId(), event);
-
-
         channel.getConnectedUsers()
                 .forEach(user -> {
                     try {
@@ -71,5 +71,6 @@ public class WebSocketEventListener {
                         log.error("Picking random person from channel failed! Cause: {}", e.getMessage());
                     }
                 });
+        verifyApplicationService.createVerifyForChannel(channel.getId(), channel.getConnectedUsers().size());
     }
 }
