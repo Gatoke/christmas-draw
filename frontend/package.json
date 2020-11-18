@@ -23,7 +23,8 @@
     "web-vitals": "^0.2.4",
     "websocket": "^1.0.32",
     "styled-components": "latest",
-    "@material-ui/icons": "latest"
+    "@material-ui/icons": "latest",
+    "react-countdown": "latest"
   },
   "scripts": {
     "start": "react-scripts start -w",

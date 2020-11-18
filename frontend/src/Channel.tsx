@@ -20,6 +20,7 @@ import {Stomp} from "@stomp/stompjs";
 import PersonSharpIcon from '@material-ui/icons/PersonSharp';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
+import Countdown from "react-countdown";
 
 let socket: any = null;
 let stompClient: any = null;
@@ -222,7 +223,18 @@ class Channel extends Component<any, any> {
 
                     </Grid>
 
-                    <div>You have picked: {this.state.pickedResult}</div>
+                    {
+                        this.state.pickedResult === null || this.state.pickedResult === ''
+                            ? ''
+                            : <div>
+                                <Countdown date={Date.now() + 3000}>
+                                    {
+                                        <div>Wylosowałeś(-aś): {this.state.pickedResult}</div>
+                                    }
+                                </Countdown>
+                            </div>
+                    }
+                    
                 </Paper>
             </div>
         )
