@@ -184,10 +184,19 @@ class Channel extends Component<any, any> {
                             <Grid item xs={12}>
                                 <List>
                                     {
-                                        <p>{JSON.stringify(this.state.peopleResults)}</p>
+                                        this.state.peopleResults.map((result: string) => (
+                                            <ListItem divider style={{backgroundColor: 'rgb(250,250,250)'}}>
+                                                <ListItemText style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center'
+                                                }}>
+                                                    {result}
+                                                </ListItemText>
+                                            </ListItem>
+                                        ))
                                     }
                                     {/*{*/}
-                                    {/*    this.state.peopleResults == null || (this.state.peopleResults.length <= this.state.channel.connectedPeople.length)*/}
+                                    {/*    (this.state.peopleResults.length <= this.state.channel.connectedPeople.length)*/}
                                     {/*        ? <ListItem button divider*/}
                                     {/*                    style={{display: 'flex', justifyContent: 'center'}}>*/}
                                     {/*            <p>Wyślij <b>anonimową</b> wiadomość zawierającą imię osoby, którą*/}
@@ -198,17 +207,17 @@ class Channel extends Component<any, any> {
                                     {/*}*/}
                                 </List>
                             </Grid>
-                            <Grid item xs={8}>
+                            <Grid item xs={9}>
                                 <TextField
                                     autoFocus
                                     margin="dense"
-                                    label="Wpisz kogo wybrałeś, np. 'Mama:)'"
+                                    label="Wpisz kogo wybrałeś, np. 'tomek:)'"
                                     variant="outlined"
                                     onChange={this.setVerifyMessage}
                                     fullWidth
                                 />
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid item xs={3}>
                                 <Button
                                     variant="contained"
                                     onClick={this.sendVerifyMessage}
