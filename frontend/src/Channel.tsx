@@ -114,6 +114,7 @@ class Channel extends Component<any, any> {
                     verifyMessageSent: true
                 }));
             }
+            return;
         }
         if (event.eventType === 'RESULTS_VERIFIED') {
             this.setState(() => ({
@@ -195,29 +196,44 @@ class Channel extends Component<any, any> {
                                             </ListItem>
                                         ))
                                     }
-                                    {/*{*/}
-                                    {/*    (this.state.peopleResults.length <= this.state.channel.connectedPeople.length)*/}
-                                    {/*        ? <ListItem button divider*/}
-                                    {/*                    style={{display: 'flex', justifyContent: 'center'}}>*/}
-                                    {/*            <p>Wyślij <b>anonimową</b> wiadomość zawierającą imię osoby, którą*/}
-                                    {/*                wylosowałeś. Wynik*/}
-                                    {/*                zostanie wyświelony dopiero wtedy, gdy wszyscy inni zrobią to samo.</p>*/}
-                                    {/*        </ListItem>*/}
-                                    {/*        : ''*/}
-                                    {/*}*/}
+                                    {
+                                        (this.state.peopleResults.length < this.state.channel.connectedUsers.length)
+                                            ? <ListItem button divider
+                                                        style={{display: 'flex', justifyContent: 'center'}}>
+                                                <ListItemText>
+                                                    Wyślij <b>anonimową</b> wiadomość zawierającą imię osoby, którą
+                                                    wylosowałeś. Wynik
+                                                    zostanie wyświelony dopiero wtedy, gdy wszyscy inni zrobią to samo.
+                                                </ListItemText>
+                                                <ListItemText>
+                                                    <p><small style={{opacity: '0.7'}}>
+                                                        Nie musisz wpisywać imienia dokładnie tak, jak było wyświetlone na
+                                                        poprzednim ekranie. Ważne jest tylko, aby każdy wiedział o kogo
+                                                        chodzi.</small></p>
+                                                </ListItemText>
+                                            </ListItem>
+                                            :
+                                            <p style={{color: 'green'}}><b>Lista pokazuje kogo wylosowali pozostali
+                                                uczestnicy. Jeśli jesteś
+                                                na liście, to znaczy, że dostaniesz prezent. :-)</b></p>
+                                    }
                                 </List>
                             </Grid>
-                            <Grid item xs={9}>
+
+                            <Grid item xs={9}
+                                  hidden={this.state.peopleResults.length >= this.state.channel.connectedUsers.length}>
                                 <TextField
                                     autoFocus
                                     margin="dense"
                                     label="Wpisz kogo wybrałeś, np. 'tomek:)'"
                                     variant="outlined"
                                     onChange={this.setVerifyMessage}
+                                    disabled={this.state.verifyMessageSent}
                                     fullWidth
                                 />
                             </Grid>
-                            <Grid item xs={3}>
+                            <Grid item xs={3}
+                                  hidden={this.state.peopleResults.length >= this.state.channel.connectedUsers.length}>
                                 <Button
                                     variant="contained"
                                     onClick={this.sendVerifyMessage}
