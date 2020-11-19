@@ -60,7 +60,8 @@ class Channel extends Component<any, any> {
         }))
     };
 
-    connect = () => {
+    connect = (event: any) => {
+        event.preventDefault();
         socket = new SockJS('http://192.168.0.192:8080/messages');
         stompClient = Stomp.over(socket);
 
@@ -187,8 +188,6 @@ class Channel extends Component<any, any> {
 
     render() {
         if (this.state.verifyWindowOpened) {
-            console.log("peopleResults");
-            console.log(this.state.peopleResults);
             return (
                 <div>
                     <GlobalStyle/>
@@ -281,29 +280,31 @@ class Channel extends Component<any, any> {
                     <GlobalStyle/>
                     <Dialog open={this.state.connected === false} aria-labelledby="form-dialog-title">
                         <DialogTitle>Kim jesteś</DialogTitle>
-                        <DialogContent style={{textAlign: 'center'}}>
-                            <DialogContentText>
-                                Napisz kim jesteś, aby inni użytkownicy Cię rozpoznali.
-                            </DialogContentText>
-                            <TextField
-                                autoFocus
-                                margin="dense"
-                                label="Nazwa"
-                                variant="outlined"
-                                onChange={this.setUsername}
-                                fullWidth
-                            />
-                        </DialogContent>
-                        <DialogActions>
-                            <Button
-                                variant="contained"
-                                onClick={this.connect}
-                                disabled={this.state.username.length <= 2}
-                                size="large"
-                                className="CreateChannelButton"
-                                style={{margin: 'auto'}}
-                            >Wejdź do pokoju</Button>
-                        </DialogActions>
+                        <form onSubmit={this.connect}>
+                            <DialogContent style={{textAlign: 'center'}}>
+                                <DialogContentText>
+                                    Napisz kim jesteś, aby inni użytkownicy Cię rozpoznali.
+                                </DialogContentText>
+                                <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    label="Nazwa"
+                                    variant="outlined"
+                                    onChange={this.setUsername}
+                                    fullWidth
+                                />
+                            </DialogContent>
+                            <DialogActions>
+                                <Button
+                                    variant="contained"
+                                    onClick={this.connect}
+                                    disabled={this.state.username.length <= 2}
+                                    size="large"
+                                    className="CreateChannelButton"
+                                    style={{margin: 'auto'}}
+                                >Wejdź do pokoju</Button>
+                            </DialogActions>
+                        </form>
                     </Dialog>
                 </div>
             )

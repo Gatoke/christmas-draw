@@ -16,7 +16,8 @@ class Home extends Component<any, any> {
         };
     }
 
-    createChannel = () => {
+    createChannel = (event: any) => {
+        console.log("dupa");
         fetch('http://192.168.0.192:8080/createChannel', {
             method: 'POST',
             headers: {
@@ -31,12 +32,13 @@ class Home extends Component<any, any> {
             .then(channel => this.setState(() => ({
                 channelId: channel.id
             })));
+        event.preventDefault();
     };
 
     setChannelName = (event: any) => {
         this.setState(() => ({
             channelName: event.target.value
-        }))
+        }));
     };
 
     render() {
