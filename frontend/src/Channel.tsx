@@ -21,6 +21,10 @@ import PersonSharpIcon from '@material-ui/icons/PersonSharp';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import Countdown from "react-countdown";
+import CopyToClipboard from 'react-copy-to-clipboard';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
+import ReactTooltip from "react-tooltip";
+import ExitButton from "./ExitButton";
 
 let socket: any = null;
 let stompClient: any = null;
@@ -315,16 +319,23 @@ class Channel extends Component<any, any> {
         }
 
         return (
-            <div>
+            <div className="Home">
                 <GlobalStyle/>
-                <Paper className="Home" elevation={20}>
+                <Paper elevation={20} style={{padding: '20px'}}>
                     <Grid container spacing={2}>
 
                         <Grid item xs={6}>
                             <p><b>{this.state.channel.name}</b></p>
                         </Grid>
                         <Grid item xs={6}>
-                            <p><small>{this.state.channel.id}</small></p>
+                            <CopyToClipboard text={window.location.href} data-tip="Skopiowano!"
+                                             data-event='click'>
+                                <Button variant="contained" size="small" style={{backgroundColor: 'white'}}
+                                        startIcon={<FileCopyIcon/>}>
+                                    <p><small>Skopiuj link do pokoju</small></p>
+                                    <ReactTooltip delayUpdate={1000}/>
+                                </Button>
+                            </CopyToClipboard>
                         </Grid>
 
                     </Grid>
@@ -392,8 +403,8 @@ class Channel extends Component<any, any> {
                         </Grid>
 
                     </Grid>
-
                 </Paper>
+                <ExitButton/>
             </div>
         )
     }
