@@ -331,7 +331,7 @@ class Channel extends Component<any, any> {
         return (
             <div className="Home">
                 <GlobalStyle/>
-                <Paper elevation={20} style={{padding: '20px'}}>
+                <Paper elevation={20} style={{padding: '20px', overflow: 'auto'}}>
                     <Grid container spacing={2}>
 
                         <Grid item xs={6}>
