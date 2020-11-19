@@ -82,8 +82,11 @@ class Channel extends Component<any, any> {
         // @ts-ignore
         console.log(socket._transport.url);
 
-        // @ts-ignore
-        const sessionId = socket._transport.url.match("(?<=messages\\/([0-9]*)\\/)(.*)(?=\\/websocket)")[0];
+        const url = this.exportUrl();
+        const sessionId = url
+            .replace("/websocket", "") // remove /websocket from the end
+            .replace(RegExp("^(.*\/)"), ""); // remove all before / character
+
         this.setState(() => ({
             sessionId: sessionId
         }));
@@ -94,6 +97,15 @@ class Channel extends Component<any, any> {
         stompClient.send("/app/chat.newUser", {},
             JSON.stringify({username: this.state.username, channelId: this.state.channel.id}));
     };
+
+    exportUrl(): string {
+        const url = socket._transport.url;
+        if (url.endsWith("/")) {
+            const idx = url.lastIndexOf("/");
+            return url.replace(idx, idx, '');
+        }
+        return url;
+    }
 
     onError = () => {
         console.log("<< Error. Something went wrong! >>");
