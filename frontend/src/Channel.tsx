@@ -23,7 +23,6 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import Countdown from "react-countdown";
 import CopyToClipboard from 'react-copy-to-clipboard';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
-import ReactTooltip from "react-tooltip";
 import ExitButton from "./ExitButton";
 
 let socket: any = null;
@@ -47,13 +46,12 @@ class Channel extends Component<any, any> {
             verifyMessage: '',
             verifyMessageSent: false,
             peopleResults: [],
-            sessionId: ''
+            sessionId: '',
+            copiedLink: false
         };
     }
 
     sendVerifyMessage = () => {
-        console.log("preparing to send");
-        console.log(this.state);
         stompClient.send("/app/chat.verifyMessage", {},
             JSON.stringify({channelId: this.state.channel.id, message: this.state.verifyMessage}));
     };
@@ -190,12 +188,16 @@ class Channel extends Component<any, any> {
         }
     };
 
+    copyLink = () => {
+        this.setState(() => ({copiedLink: true}))
+    };
+
     render() {
         if (this.state.verifyWindowOpened) {
             return (
-                <div>
+                <div className="Home">
                     <GlobalStyle/>
-                    <Paper className="Home" elevation={20}>
+                    <Paper elevation={20} style={{padding: '20px'}}>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <List>
@@ -235,6 +237,13 @@ class Channel extends Component<any, any> {
                                 </List>
                             </Grid>
 
+                            {
+                                this.state.peopleResults.length < this.state.channel.connectedUsers.length && this.state.verifyMessageSent
+                                    ? <b>Czekam na pozostałych uczestników. Nie zamykaj okna przeglądarki.</b>
+                                    : ''
+                            }
+
+
                             <Grid item xs={9}
                                   hidden={this.state.peopleResults.length >= this.state.channel.connectedUsers.length}>
                                 <TextField
@@ -260,6 +269,7 @@ class Channel extends Component<any, any> {
                             </Grid>
                         </Grid>
                     </Paper>
+                    <ExitButton/>
                 </div>
             )
         }
@@ -328,12 +338,14 @@ class Channel extends Component<any, any> {
                             <p><b>{this.state.channel.name}</b></p>
                         </Grid>
                         <Grid item xs={6}>
-                            <CopyToClipboard text={window.location.href} data-tip="Skopiowano!"
-                                             data-event='click'>
+                            <CopyToClipboard text={window.location.href}>
                                 <Button variant="contained" size="small" style={{backgroundColor: 'white'}}
-                                        startIcon={<FileCopyIcon/>}>
-                                    <p><small>Skopiuj link do pokoju</small></p>
-                                    <ReactTooltip delayUpdate={1000}/>
+                                        startIcon={<FileCopyIcon/>} onClick={this.copyLink}>
+                                    <p><small>
+                                        {
+                                            this.state.copiedLink ? 'Skopiowano!' : 'Skopiuj link do pokoju'
+                                        }
+                                    </small></p>
                                 </Button>
                             </CopyToClipboard>
                         </Grid>
