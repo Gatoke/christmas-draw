@@ -38,7 +38,6 @@ class Channel extends Component<any, any> {
                 connectedUsers: [],
                 name: null
             },
-            allUsersReady: false,
             pickedResult: '',
             username: '',
             connected: false,
@@ -118,11 +117,6 @@ class Channel extends Component<any, any> {
         const event = JSON.parse(payload.body);
         console.log(event);
 
-        if (event.eventType === 'ALL_USERS_READY') {
-            this.setState(() => ({
-                allUsersReady: true
-            }));
-        }
         if (event.eventType === 'VERIFICATION_MESSAGE_RECEIVED') {
             if (event.userId === this.state.sessionId) {
                 this.setState(() => ({

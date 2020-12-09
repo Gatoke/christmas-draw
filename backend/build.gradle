@@ -4,7 +4,7 @@ plugins {
     id 'java'
 }
 
-group = 'io.github.gatoke'
+group = 'com.github.gatoke'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
@@ -23,9 +23,9 @@ dependencies {
     implementation project(':frontend')
 
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-//    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     // MONGO
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
