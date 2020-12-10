@@ -17,8 +17,26 @@ Functionality:
 8. When everyone has typed a message, all of the messages will appear on the screen in random order.
 9. If the are no duplicates and everyone is on the list - everyone will receive a gift!
 
-
 #### Currently the FrontEnd have only one language option (Polish).
 
+![Channel screen](channel.png)
+ 
+![Result screen](result.png)
+
+![Verify screen](verify.png)
+
+![After verify screen](verifyResult.png)
+
+
+## Technology stack
+### BackEnd:
+- Java, Spring Boot, WebSocket, MongoDb (embedded)
+### FrontEnd:
+- React.js, TypeScript
+
+Everything is built by Gradle into one Jar.
+
+```
 todo:
-- change language functionaliy
+- change language on FrontEnd
+```
