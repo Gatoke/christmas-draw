@@ -40,7 +40,7 @@ class Channel extends Component<any, any> {
     }
 
     sendVerifyMessage = () => {
-        stompClient.send("/app/chat.verifyMessage", {},
+        stompClient.send("/app/channel.verifyMessage", {},
             JSON.stringify({channelId: this.state.channel.id, message: this.state.verifyMessage}));
     };
 
@@ -52,7 +52,7 @@ class Channel extends Component<any, any> {
 
     connect = (event: any) => {
         event.preventDefault();
-        socket = new SockJS('http://192.168.0.192:8080/messages');
+        socket = new SockJS('http://localhost:8080/events');
         stompClient = Stomp.over(socket);
 
         stompClient.connect({},
@@ -65,7 +65,7 @@ class Channel extends Component<any, any> {
             username: this.state.username,
             channelId: this.state.channel.id
         };
-        stompClient.send("/app/chat.switchReadyStatus", {}, JSON.stringify(request));
+        stompClient.send("/app/channel.switchReadyStatus", {}, JSON.stringify(request));
         event.preventDefault();
     };
 
@@ -81,7 +81,7 @@ class Channel extends Component<any, any> {
 
         stompClient.subscribe('/topic/channel.' + this.state.channel.id + "-" + sessionId, this.onMessageReceived);
         stompClient.subscribe('/topic/channel.' + this.state.channel.id, this.onMessageReceived);
-        stompClient.send("/app/chat.newUser", {},
+        stompClient.send("/app/channel.newUser", {},
             JSON.stringify({username: this.state.username, channelId: this.state.channel.id}));
     };
 

@@ -20,7 +20,7 @@ class ChannelMongoRepository implements ChannelRepository {
     @Override
     public Channel findOrThrow(final String channelId) {
         return repository.findById(channelId)
-                .orElseThrow(() -> new IllegalArgumentException("No channel with id: " + channelId));
+                .orElseThrow(() -> new IllegalArgumentException("Channel with id: " + channelId + " not exists."));
     }
 }
 

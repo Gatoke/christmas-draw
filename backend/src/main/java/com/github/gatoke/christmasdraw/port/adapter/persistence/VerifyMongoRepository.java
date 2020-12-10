@@ -20,7 +20,7 @@ class VerifyMongoRepository implements VerifyRepository {
     @Override
     public Verify findOrThrow(final String channelId) {
         return repository.findById(channelId)
-                .orElseThrow();//todo
+                .orElseThrow(() -> new IllegalArgumentException("Verify for channel: " + channelId + " not exists."));
     }
 }
 

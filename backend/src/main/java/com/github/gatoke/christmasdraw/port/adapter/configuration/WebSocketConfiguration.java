@@ -20,25 +20,16 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
-        registry.addEndpoint("/messages")
-                .setAllowedOrigins("*")//todo
+        registry.addEndpoint("/events")
+                .setAllowedOrigins("127.0.0.1", "http://localhost:3000", "http://192.168.0.192:3000", "http://localhost:8080")
                 .setHandshakeHandler(new CustomHandshakeHandler())
                 .withSockJS();
     }
 
     @Override
     public void configureMessageBroker(final MessageBrokerRegistry registry) {
-//        final long heartbeatServer = 10000; // 10 seconds
-//        final long heartbeatClient = 10000; // 10 seconds
-//
-//        final ThreadPoolTaskScheduler ts = new ThreadPoolTaskScheduler();
-//        ts.setPoolSize(2);
-//        ts.setThreadNamePrefix("wss-heartbeat-thread-");
-//        ts.initialize();
-
-
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic", "/queue");
+        registry.enableSimpleBroker("/topic");
     }
 
     private static class CustomHandshakeHandler extends DefaultHandshakeHandler {

@@ -33,7 +33,7 @@ class WebSocketController {
     private final VerifyApplicationService verifyApplicationService;
     private final ChannelRepository channelRepository;
 
-    @MessageMapping("/chat.newUser")
+    @MessageMapping("/channel.newUser")
     void newUser(@Payload @Valid final ConnectUserRequest request,
                  final SimpMessageHeaderAccessor headerAccessor) {
 
@@ -48,7 +48,7 @@ class WebSocketController {
         );
     }
 
-    @MessageMapping("/chat.switchReadyStatus")
+    @MessageMapping("/channel.switchReadyStatus")
     void setReadyStatus(@Payload final SwitchReadyStatusRequest request, final SimpMessageHeaderAccessor headerAccessor) {
         final String userId = headerAccessor.getSessionId();
         final Channel channel = channelService.switchUserReadyStatus(userId, request.getChannelId());
@@ -62,7 +62,7 @@ class WebSocketController {
         }
     }
 
-    @MessageMapping(value = "/chat.verifyMessage")
+    @MessageMapping(value = "/channel.verifyMessage")
     void sendVerifyMessage(@Payload final SendVerifyMessageRequest request, final SimpMessageHeaderAccessor headerAccessor) {
         final Channel channel = channelRepository.findOrThrow(request.getChannelId());
 

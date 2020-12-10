@@ -34,9 +34,18 @@ Functionality:
 ### FrontEnd:
 - React.js, TypeScript
 
-Everything is built by Gradle into one Jar.
+## How to run:
+In backend directory:
+`gradlew clean build`
+`gradlew bootRun`
+
+In frontend directory:
+`npm install`
+`npm run start`
 
 ```
 todo:
 - change language on FrontEnd
+- fix running Jar
+- docker
 ```
