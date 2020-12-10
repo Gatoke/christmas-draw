@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import Home from "./Home";
+import Home from "./home/Home";
 import {BrowserRouter, Route} from "react-router-dom";
-import Channel from "./Channel";
+import Channel from "./channel/Channel";
 
 ReactDOM.render(
     <BrowserRouter>

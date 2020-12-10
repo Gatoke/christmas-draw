@@ -1,5 +1,4 @@
 .Home {
-    /*display: flex;*/
     position: absolute;
     top: 50%;
     left: 50%;
@@ -8,15 +7,10 @@
     transform: translate(-50%, -50%);
     text-align: center;
     width: 30%;
-    /*width: 100%;*/
-    /*max-width: 600px;*/
-
 }
 
 .ChannelNameInput {
     width: 100% !important;
-    /*min-width: 300px !important;*/
-    /*max-width: 600px !important;*/
     text-align: center;
 }
 
@@ -49,6 +43,5 @@
         width: 80%;
     }
 }
-
 
 /*Photo by Hert Niks from Pexels*/

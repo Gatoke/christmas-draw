@@ -3,7 +3,7 @@ import {Redirect} from 'react-router-dom';
 
 import './Home.css';
 import {Button, Paper, TextField} from "@material-ui/core";
-import {GlobalStyle} from "./App.styles";
+import {GlobalStyle} from "../App.styles";
 
 
 class Home extends Component<any, any> {
@@ -17,7 +17,6 @@ class Home extends Component<any, any> {
     }
 
     createChannel = (event: any) => {
-        console.log("dupa");
         fetch('http://192.168.0.192:8080/createChannel', {
             method: 'POST',
             headers: {
